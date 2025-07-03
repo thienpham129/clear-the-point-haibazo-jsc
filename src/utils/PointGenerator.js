@@ -4,19 +4,19 @@ export function getRandomPoints(n) {
     // Set names used contains coordinates;
     const used = new Set();
 
-    while(points.length < n){
+    while (points.length < n) {
         // Random number 0 to 80 and 10 to 69
         // floor the value
-        const x = Math.floor(Math.random() * 80) + 10;
-        const y = Math.floor(Math.random() * 60) + 10;
+        const x = +(Math.random() * 90 + 5).toFixed(1); // 5–95%
+        const y = +(Math.random() * 90 + 5).toFixed(1); // 5–95%
 
-        // a string for key
-        const key = `${x}-${y}`;
+        //string for key
+        const key = `${x.toFixed(1)}-${y.toFixed(1)}`;
 
         // check
-        if(!used.has(key)) {
+        if (!used.has(key)) {
             used.add(key);
-            points.push({id: points.length + 1, x, y});
+            points.push({ id: points.length + 1, x, y });
         }
     }
 

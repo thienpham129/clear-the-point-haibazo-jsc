@@ -12,6 +12,7 @@ function App() {
   const [isStarted, setIsStated] = useState(false);
   const [time, setTime] = useState(0.0);
   const [intervalId, setIntervalId] = useState(null);
+  const [autoPlay, setAutoPlay] = useState(false);
 
   const startGame = () => {
     clearInterval(intervalId);
@@ -22,14 +23,13 @@ function App() {
     setWin(false);
     setTime(0);
     setIsStated(true);
+    setAutoPlay(false);
 
     const id = setInterval(() => {
       setTime((prev) => +(prev + 0.1).toFixed(1));
     }, 100);
     setIntervalId(id);
   }
-
-
 
   useEffect(() => {
     setPoints(getRandomPoints(totalPoints));
@@ -39,20 +39,45 @@ function App() {
     if (gameOver || win) return;
 
     if (id === current) {
-      const updatedPoints = points.filter((p) => p.id !== id);
-      setPoints(updatedPoints);
+      // Mark as fading
+      setPoints((prevPoints) =>
+        prevPoints.map((p) => (p.id === id ? { ...p, fading: true, fadeStartTime: Date.now() } : p))
+      );
 
-      if (current === totalPoints) {
-        setWin(true);
-        clearInterval(intervalId);
-      } else {
-        setCurrent(current + 1);
-      }
+      //Delay time
+      setTimeout(() => {
+        setPoints((prevPoints) => {
+          const updated = prevPoints.filter((p) => p.id !== id);
+          if (updated.length === 0) {
+            clearInterval(intervalId);
+            setWin(true);
+          }
+          return updated;
+        });
+      }, 3000);
+
+      setCurrent((prev) => prev + 1);
+
     } else {
       setGameOver(true);
       clearInterval(intervalId);
     }
   };
+
+  const toggleAutoPlay = () => {
+    setAutoPlay((prev) => !prev);
+  }
+
+  useEffect(() => {
+    if (!autoPlay || !isStarted || win || gameOver) return;
+
+    const timer = setInterval(() => {
+      const point = points.find((p) => p.id === current);
+      if (point) handleClick(point.id);
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, [autoPlay, current, points, isStarted, win, gameOver]);
 
   return (
     <div className="w-full h-screen bg-gray-100 flex flex-col items-center justify-center">
@@ -100,6 +125,12 @@ function App() {
             className="mt-6 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
           >
             Restart Game
+          </button>
+          <button
+            onClick={toggleAutoPlay}
+            className={`mt-2 px-4 py-2 rounded text-white ${autoPlay ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+          >
+            Auto Play {autoPlay ? 'OFF' : 'ON'}
           </button>
         </>
       )}

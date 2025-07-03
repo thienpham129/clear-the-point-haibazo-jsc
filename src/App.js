@@ -80,29 +80,40 @@ function App() {
   }, [autoPlay, current, points, isStarted, win, gameOver]);
 
   return (
-    <div className="w-full h-screen bg-gray-100 flex flex-col items-center justify-center">
-      <h1 className="text-3xl font-bold mb-4">Clear The Point</h1>
+    <div className="flex flex-col justify-center items-start flex-grow w-full max-w-screen-md mx-auto px-6">
+      <h3
+        className={`text-3xl font-bold mb-4 ${gameOver ? 'text-red-600' : win ? 'text-green-600' : 'text-black'
+          }`}
+      >
+        {gameOver ? 'GAME OVER' : win ? 'ALL CLEARED' : "LET'S PLAY"}
+      </h3>
 
-      <GameBoard points={isStarted ? points : []} handleClick={handleClick} />
-      <div className="flex items-center gap-2 mb-4">
-        <label className="text-lg">Points:</label>
-        <input
-          type="text"
-          min="1"
-          max="5000"
-          value={totalPoints}
-          onChange={(e) => setTotalPoints(Number(e.target.value))}
-          className="px-3 py-2 border rounded text-lg w-40 text-center"
-        />
+      <div className="flex flex-col gap-2 mb-4">
+        <div className="flex items-center gap-2">
+          <label className="text-lg w-20">Points:</label>
+          <input
+            type="text"
+            min="1"
+            max="10000"
+            value={totalPoints}
+            onChange={(e) => setTotalPoints(Number(e.target.value))}
+            className="px-3 py-2 border-2 border-black rounded text-lg w-40 text-center"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-lg w-20">Time:</label>
+          <span className="text-lg text-gray-700">{time.toFixed(1)}s</span>
+        </div>
       </div>
+
+
 
       {
         !isStarted && (
           <>
-            <div className="text-lg mb-2 text-gray-700">Time: {time.toFixed(1)}s</div>
             <button
               onClick={startGame}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg text-lg hover:bg-green-700"
+              className="mt-1 px-4 py-2 bg-green-600 text-white rounded-lg text-lg hover:bg-green-700"
             >
               Play
             </button>
@@ -110,31 +121,36 @@ function App() {
         )
       }
 
-      {isStarted && (
-        <div className="text-lg mb-2 text-gray-700">Time: {time.toFixed(1)}s</div>
-      )}
-
 
       {isStarted && (
         <>
-          {gameOver && <div className="text-red-500 text-xl font-bold mb-2">Game Over</div>}
-          {win && <div className="text-green-600 text-xl font-bold mb-2">ALL CLEARED</div>}
+          <div className="mt-1 flex gap-2">
+            <button
+              onClick={startGame}
+              className="mt-1 px-4 py-2 bg-gray-500 text-white rounded hover:bg-indigo-600"
+            >
+              Restart Game
+            </button>
+            {!win && !gameOver && (
+              <button
+                onClick={toggleAutoPlay}
+                className={`mt-1 px-4 py-2 rounded text-white ${autoPlay ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}
+              >
+                Auto Play {autoPlay ? 'OFF' : 'ON'}
+              </button>
+            )}
+          </div>
 
-          <button
-            onClick={startGame}
-            className="mt-6 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
-          >
-            Restart Game
-          </button>
-          <button
-            onClick={toggleAutoPlay}
-            className={`mt-2 px-4 py-2 rounded text-white ${autoPlay ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}`}
-          >
-            Auto Play {autoPlay ? 'OFF' : 'ON'}
-          </button>
         </>
       )}
-
+      <div className="flex items-start gap-2 mt-2">
+        <GameBoard points={isStarted ? points : []} handleClick={handleClick} current={current} />
+        {isStarted && current <= totalPoints && (
+          <div className="mt-4 text-lg font-semibold text-gray-800">
+            Next: <span className="text-indigo-600">{current}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
